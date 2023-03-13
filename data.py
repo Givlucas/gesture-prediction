@@ -5,29 +5,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-                        # # Figure out how many frames will be in set
-                        # length = int(len(mat['emg']) // 2000 * num_frame)
-                        # # create buffer to store new sets until there is enough
-                        # buffer = []
-                        # for i in range(length):
-                        #     # Calculate RMS for frame from i to I + frame size
-                        #     buffer.append(RMS(mat['emg'][i : i + frame_size]) * gain)
-                        #     if len(buffer) >= num_frame: # Check to see if there is enough if there is create group
-                        #         group = f.create_group(f'data_{sum}')
-                        #         sum += 1
-                        #         group.attrs['label'] = mat['exercise']
-                        #         group.create_dataset('data', data=buffer)
-                        #         buffer = []
-
-# datafile = "./data/DB1/s1/S1_A1_E1.mat"
-# mat = scipy.io.loadmat(datafiley)
-# length = len(mat['emg'])
-# time = np.array([i/100 for i in range(0, length, 1)])
-
-# plt.plot(time, mat['emg'])
-# plt.show()
-# print(length)
-
 def RMS(frame):
     sum = np.zeros((1,12))
     for x in frame:
@@ -46,9 +23,11 @@ def digest(i_path, o_path, num_frame, frame_size, gain, name):
         buffer = []
         for i in range(length):
             # Calculate RMS for frame from i to I + frame size
+            if i + frame_size > len(mat['emg']):
+                break
             buffer.append(RMS(mat['emg'][i : i + frame_size]) * gain)
             if len(buffer) >= num_frame: # Check to see if there is enough if there is create group
-                group = f.create_group(f'{name}_data_{sum})')
+                group = f.create_group(f'{name}_data_{sum}')
                 sum += 1
                 group.attrs['label'] = mat['exercise']
                 group.create_dataset('data', data=buffer)
