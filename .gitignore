@@ -1,4 +1,4 @@
 venv
-data
+.olddata
 DB1
-newdata
+newdata.tar.xz
