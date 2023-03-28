@@ -5,33 +5,49 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def RMS(frame):
-    sum = np.zeros((1,12))
+    summ = np.zeros((1, 12))
     for x in frame:
         x = np.array(x)
-        sum += x
-    sum = sum**2
-    return np.sqrt(sum)
+        summ += x
+    summ = summ**2
+    return np.sqrt(summ)
+
 
 def digest(i_path, o_path, num_frame, frame_size, gain, name):
-    sum = 0
+    summ = 0
     mat = scipy.io.loadmat(i_path)
     with h5py.File(o_path, 'a') as f:
         # Figure out how many frames will be in set
         length = int(len(mat['emg']) // 2000 * num_frame)
-        # create buffer to store new sets until there is enough
-        buffer = []
+        # create buf to store new sets until there is enough
+        buf = []
         for i in range(length):
             # Calculate RMS for frame from i to I + frame size
             if i + frame_size > len(mat['emg']):
                 break
-            buffer.append(RMS(mat['emg'][i : i + frame_size]) * gain)
-            if len(buffer) >= num_frame: # Check to see if there is enough if there is create group
-                group = f.create_group(f'{name}_data_{sum}')
-                sum += 1
-                group.attrs['label'] = mat['exercise']
-                group.create_dataset('data', data=buffer)
-                buffer = []            
+            # collect data for frame
+            frame = []
+            for x in range(frame_size):
+                if mat['stimulus'][i + x] == 0:
+                    frame = []
+                else:
+                    exersise = mat['stimulus'][i + x]
+                    frame.append(mat['emg'][i + x])
+
+            if len(frame) == 0:
+                continue
+            else:
+                frame = np.array(frame)
+            buf.append(RMS(frame) * gain)
+            if len(buf) >= num_frame:  # Check to see if there is enough to create a group
+                group = f.create_group(f'{name}_data_{summ}')
+                summ += 1
+                group.attrs['label'] = exersise
+                group.create_dataset('data', data=buf)
+                buf = []
+
 
 if __name__ == '__main__':
     # algorith:
@@ -45,7 +61,7 @@ if __name__ == '__main__':
     # Size of moving rms window
     frame_size = 1801
     # Number of frames = 150ms of time
-    num_frame = (((hz - frame_size) + 1) // (1/0.150)) + 1
+    num_frame = (((hz - frame_size) + 1) // (1 / 0.150)) + 1
     # set the gain
     gain = 14000
     # where databases are stored
@@ -55,7 +71,7 @@ if __name__ == '__main__':
     # List to store paths of all data files
     file_list = []
     # Iterate through all file in each data base
-    sum = 0
+    summ = 0
     for dir in os.listdir(root):
         database = os.path.join(root, dir)
         if os.path.isdir(database):
@@ -75,12 +91,13 @@ if __name__ == '__main__':
 
     i = 0
     arguments = []
-    # with h5py.File(os.path.join(new, "set.h5"), "a") as f:
     workers = 8
+   #  digest(file_list[50],os.path.join(new, "test"), num_frame, frame_size,gain, 1) 
     while i < len(file_list):
-        arguments.append([file_list[i], os.path.join(new, f"s{i}"),num_frame, frame_size, gain, f"s{i}"])
+        arguments.append([file_list[i], os.path.join(
+            new, f"s{i}"), num_frame, frame_size, gain, f"s{i}"])
         i += 1
-        if i % workers == 0:
+        if i % workers == 0 or i + 1 >= len(file_list):
             with mp.Pool(processes=workers) as pool:
                 print(arguments)
                 pool.starmap(digest, arguments)

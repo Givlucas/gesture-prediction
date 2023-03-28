@@ -101,9 +101,9 @@ void loop() {
 
 
     if(envlope > 100) {
-      myservo.write(180);
+      myservo.write(0);
     } else {
-      myservo.write(0); 
+      myservo.write(180); 
     }
 
     timeStamp = micros() - timeStamp;
