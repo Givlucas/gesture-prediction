@@ -61,7 +61,7 @@ int humFreq = NOTCH_FREQ_50HZ;
 // put on the sensors, and release your muscles;
 // wait a few seconds, and select the max value as the threshold;
 // any value under threshold will be set to zero
-static int Threshold = 100;
+static int Threshold = 0;
 
 
 unsigned long timeStamp;
@@ -100,10 +100,10 @@ void loop() {
     envlope = (envlope > Threshold) ? envlope : 0;
 
 
-    if(envlope > 100) {
-      myservo.write(0);
+    if(envlope > 1500) {
+      myservo.write(180);
     } else {
-      myservo.write(180); 
+      myservo.write(0); 
     }
 
     timeStamp = micros() - timeStamp;
