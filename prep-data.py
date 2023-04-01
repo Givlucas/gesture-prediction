@@ -19,8 +19,8 @@ def digest(i_path, o_path, num_frame, frame_size, gain, name):
     summ = 0
     mat = scipy.io.loadmat(i_path)
     with h5py.File(o_path, 'a') as f:
-        # Figure out how many frames will be in set
-        length = int(len(mat['emg']) // 2000 * num_frame)
+        # get length of set
+        length = len(mat['emg'])
         # create buf to store new sets until there is enough
         buf = []
         for i in range(length):
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     # set the gain
     gain = 14000
     # where databases are stored
-    root = "./data"
+    root = "./old-data"
     # where new data files are too be stored
-    new = "./newdata"
+    new = "./data"
     # List to store paths of all data files
     file_list = []
     # Iterate through all file in each data base
@@ -91,14 +91,14 @@ if __name__ == '__main__':
 
     i = 0
     arguments = []
-    workers = 8
-   #  digest(file_list[50],os.path.join(new, "test"), num_frame, frame_size,gain, 1) 
+    workers = 16
+    # digest(file_list[50],os.path.join(new, "test"), num_frame, frame_size,gain, 1) 
     while i < len(file_list):
         arguments.append([file_list[i], os.path.join(
             new, f"s{i}"), num_frame, frame_size, gain, f"s{i}"])
         i += 1
         if i % workers == 0 or i + 1 >= len(file_list):
             with mp.Pool(processes=workers) as pool:
-                print(arguments)
+                print(f"{len(arguments)} {arguments} ")
                 pool.starmap(digest, arguments)
             arguments = []
