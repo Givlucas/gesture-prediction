@@ -16,6 +16,14 @@ def RMS(frame):
 
 
 def digest(i_path, o_path, num_frame, frame_size, gain, name):
+    '''
+    # algorith:
+    # For each database and for each file in the data base and for each sensor.
+    # Take an RMS over the number of samples needed to downsample to 200hz and apply gain of 150ms
+    # store in array where first variable is exersise number. 
+    # once the number of RMS stored is greater
+    # than 150ms of time then append to list
+    '''
     summ = 0
     mat = scipy.io.loadmat(i_path)
     with h5py.File(o_path, 'a') as f:
@@ -50,11 +58,6 @@ def digest(i_path, o_path, num_frame, frame_size, gain, name):
 
 
 if __name__ == '__main__':
-    # algorith:
-    # For each database and for each file in the data base and for each sensor.
-    # Take an RMS over 100 samples. and gain of 14k and subsample to 200hz. store in array where first
-    # variable is exersize number. once the number of RMS stored is greater
-    # then 150ms of time then append to list
 
     # Sampling rate of data
     hz = 2000
