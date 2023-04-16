@@ -101,4 +101,4 @@ if __name__ == '__main__':
             new, f"s{i}"), num_frame, frame_size, gain, f"s{i}"])
         i += 1
     with mp.Pool(processes=workers) as pool:
-        pool.map(digest, arguments)
+        pool.starmap(digest, arguments)
