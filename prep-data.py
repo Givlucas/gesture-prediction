@@ -36,7 +36,7 @@ def digest(i_path, o_path, num_frame, frame_size, gain, name):
             if i + frame_size > len(mat['emg']):
                 break
             # collect data for frame
-            if mat['emg'][i + frame_size] == 0:
+            if mat['stimulus'][i + frame_size] == 0:
                 frame = []
             else:
                 frame = mat['emg'][i: i + frame_size]
