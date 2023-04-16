@@ -100,8 +100,5 @@ if __name__ == '__main__':
         arguments.append([file_list[i], os.path.join(
             new, f"s{i}"), num_frame, frame_size, gain, f"s{i}"])
         i += 1
-        if i % workers == 0 or i + 1 >= len(file_list):
-            with mp.Pool(processes=workers) as pool:
-                print(f"{len(arguments)} {arguments} ")
-                pool.starmap(digest, arguments)
-            arguments = []
+    with mp.Pool(processes=workers) as pool:
+        pool.map(digest, arguments)
