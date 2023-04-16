@@ -35,6 +35,8 @@ def digest(i_path, o_path, num_frame, frame_size, gain, name):
             # Calculate RMS for frame from i to I + frame size
             if i + frame_size > len(mat['emg']):
                 break
+            if i + frame_size > len(mat['stimulus']):
+                break
             # collect data for frame
             if mat['stimulus'][i + frame_size] == 0:
                 frame = []
