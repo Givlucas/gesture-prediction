@@ -11,7 +11,7 @@ def load_data(file_path):
     with h5.File(file_path, 'r') as f:
         for set in f.keys():
             window = [x for x in f[set]['data']]
-            label = f[set].attrs['label'][0]
+            label = f[set].attrs['label']
             yield tf.reshape(window, (30, 12, 1)), label
 
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     dataset = dataset.interleave(lambda x: tf.data.Dataset.from_generator(
         load_data,
         (tf.float32, tf.float32),
-        ((30, 12, 1), ()),
+        ((30, 12, 1), (50, )),
         [x]), num_parallel_calls=tf.data.AUTOTUNE)
 
     dataset = dataset.shuffle(buffer_size=10000)
@@ -47,6 +47,6 @@ if __name__ == '__main__':
         keras.layers.Dense(50, activation='softmax')  #Output layer
     ])
 
-    model.compile(optimizer='adam', loss=keras.losses.sparse_categorical_crossentropy, metrics=['accuracy'])
+    model.compile(optimizer='adam', loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
     model.summary()
     model.fit(dataset, epochs=10)
