@@ -30,23 +30,26 @@ if __name__ == '__main__':
     dataset = dataset.shuffle(buffer_size=10000)
 
     # Batch the data
-    batch_size = 32
+    batch_size = 256
     dataset = dataset.batch(batch_size)
 
     # Prefetch the data
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     model = keras.models.Sequential([
-        keras.layers.Conv1D(6, kernel_size=5, strides=1,  activation='tanh', input_shape=(30, 12), padding='same'),  #C1
-        keras.layers.AveragePooling1D(),  #S2
-        keras.layers.Conv1D(16, kernel_size=5, strides=1, activation='tanh', padding='valid'),  #C3
-        keras.layers.AveragePooling1D(),  #S4
-        keras.layers.Conv1D(120, kernel_size=5, strides=1, activation='tanh', padding='valid'),  #C5
+        keras.layers.Conv2D(32, kernel_size=12, strides=1,  activation='relu', input_shape=(30, 12, 1), padding='same'),  #C1
+        keras.layers.Conv2D(32, kernel_size=3, strides=1, activation='relu', padding='valid'),  #C3
+        keras.layers.AveragePooling2D(pool_size=(3, 3), strides=1),  #S4
+        keras.layers.Conv2D(64, kernel_size=5, strides=1, activation='relu', padding='valid'),  #C5
+        keras.layers.AveragePooling2D(pool_size=(3, 3), strides=1),  #S4
+        keras.layers.Conv2D(64, kernel_size=(9, 1), strides=1, activation='relu', padding='valid'),  #C5
+        keras.layers.Conv2D(64, kernel_size=1, strides=1, activation='relu', padding='valid'),  #C5
         keras.layers.Flatten(),  #Flatten
-        keras.layers.Dense(84, activation='tanh'),  #F6
+        keras.layers.Dense(84, activation='relu'),  #F6
         keras.layers.Dense(50, activation='softmax')  #Output layer
     ])
 
-    model.compile(optimizer='adam', loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
+    sgdm = keras.optimizers.SGD(0.001, 0.9, weight_decay=0.0005)
+    model.compile(optimizer=sgdm, loss=keras.losses.categorical_crossentropy, metrics=['accuracy'])
     model.summary()
-    model.fit(dataset, epochs=10)
+    model.fit(dataset, epochs=30)
